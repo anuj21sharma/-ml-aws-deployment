@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud ML Predictor</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#home"><span class="logo">◆</span><span><b>Cloud ML Predictor</b><small>Machine Learning Model Deployment using Docker &amp; AWS</small></span></a>
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    <nav id="nav">
+      <a href="#home">Home</a><a href="#prediction">Prediction</a><a href="#model">Model</a>
+      <a href="#architecture">Architecture</a><a href="#api">API</a><a href="#about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="home" class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill" id="heroStatus"><i class="dot"></i><span>Checking model…</span></span>
+      <h1>Predict Iris Species with Machine Learning</h1>
+      <p class="lead">Enter four flower measurements and get an instant AI-powered prediction using our deployed machine learning model.</p>
+      <div class="actions"><a class="btn" href="#prediction">Start Prediction</a><a class="btn ghost" href="#architecture">View Architecture</a></div>
+    </div>
+    <aside class="card" aria-label="Deployment status">
+      <div class="row-between"><h3>Deployment status</h3><button class="link" id="refresh">Refresh</button></div>
+      <ul class="status">
+        <li><span>Application</span><b data-s="app">…</b></li>
+        <li><span>ML Model</span><b data-s="model">…</b></li>
+        <li><span>Container</span><b data-s="container">…</b></li>
+        <li><span>Cloud</span><b data-s="cloud">…</b></li>
+        <li><span>API</span><b data-s="api">…</b></li>
+      </ul>
+      <p class="note">Read live from <code>/health</code> and <code>/api/info</code>.</p>
+    </aside>
+  </div>
+</section>
+
+<section id="prediction" class="sec">
+  <div class="wrap narrow">
+    <div class="card big">
+      <h2>Iris Flower Prediction</h2>
+      <p class="muted">Try a sample or enter your own measurements (in centimetres).</p>
+      <div class="samples">
+        <button type="button" class="chip" data-sample="setosa">Setosa example</button>
+        <button type="button" class="chip" data-sample="versicolor">Versicolor example</button>
+        <button type="button" class="chip" data-sample="virginica">Virginica example</button>
+      </div>
+      <form id="form" novalidate>
+        <div class="fields">
+          <label>Sepal Length (cm)<input name="sepal_length" type="number" step="0.1" min="0.1" max="20" inputmode="decimal" placeholder="e.g. 5.1"></label>
+          <label>Sepal Width (cm)<input name="sepal_width" type="number" step="0.1" min="0.1" max="20" inputmode="decimal" placeholder="e.g. 3.5"></label>
+          <label>Petal Length (cm)<input name="petal_length" type="number" step="0.1" min="0.1" max="20" inputmode="decimal" placeholder="e.g. 1.4"></label>
+          <label>Petal Width (cm)<input name="petal_width" type="number" step="0.1" min="0.1" max="20" inputmode="decimal" placeholder="e.g. 0.2"></label>
+        </div>
+        <p class="error" id="error" role="alert" hidden></p>
+        <button class="btn full" id="submit" type="submit">Predict Species</button>
+      </form>
+      <div id="result" class="result" hidden>
+        <div class="flower" id="rIcon"></div>
+        <p class="muted">Prediction</p><h3 id="rName"></h3>
+        <p class="muted">Confidence</p><div class="conf" id="rConf"></div>
+        <div id="rBars" class="bars"></div>
+        <button class="btn ghost full" id="again" type="button">Make another prediction</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="model" class="sec alt">
+  <div class="wrap">
+    <h2>Model Information</h2>
+    <div class="grid4">
+      <div class="card kv"><span>Algorithm</span><b>Logistic Regression</b></div>
+      <div class="card kv"><span>Dataset</span><b>Iris Dataset</b></div>
+      <div class="card kv"><span>Features</span><b>4</b></div>
+      <div class="card kv"><span>Classes</span><b>3</b></div>
+      <div class="card kv"><span>Framework</span><b>Scikit-learn</b></div>
+      <div class="card kv"><span>API</span><b>Flask REST API</b></div>
+      <div class="card kv"><span>Container</span><b>Docker</b></div>
+      <div class="card kv"><span>Cloud</span><b>AWS EC2</b></div>
+    </div>
+    <div class="card acc"><div><span class="muted">Test accuracy (measured during training)</span><b id="acc">…</b></div><p class="muted" id="split"></p></div>
+    <h3 class="gap">How it works</h3>
+    <ol class="steps">
+      <li>User enters four flower measurements.</li>
+      <li>Frontend sends the data to the Flask API.</li>
+      <li>Flask validates the input.</li>
+      <li>The trained ML model processes the input.</li>
+      <li>The model predicts the flower species.</li>
+      <li>The API returns the prediction and confidence.</li>
+      <li>The frontend displays the result.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="architecture" class="sec">
+  <div class="wrap narrow">
+    <h2>System Architecture</h2>
+    <div class="flow">
+      <div class="node"><span>👤</span><div><b>User</b><p>Opens the EC2 public IP in a browser.</p></div></div>
+      <div class="arrow">↓</div>
+      <div class="node"><span>🖥️</span><div><b>Web interface</b><p>HTML / CSS / JavaScript. Collects measurements and calls the API with <code>fetch</code>.</p></div></div>
+      <div class="arrow">↓</div>
+      <div class="node"><span>⚙️</span><div><b>Flask REST API</b><p>Validates input and exposes <code>/predict</code>, <code>/health</code> and <code>/api/info</code>.</p></div></div>
+      <div class="arrow">↓</div>
+      <div class="node"><span>🧠</span><div><b>Trained ML model</b><p>Scikit-learn Logistic Regression loaded from <code>model.pkl</code> once at startup.</p></div></div>
+      <div class="arrow">↓</div>
+      <div class="node"><span>🐳</span><div><b>Docker container</b><p>Packages code, model and dependencies so it runs the same everywhere.</p></div></div>
+      <div class="arrow">↓</div>
+      <div class="node"><span>☁️</span><div><b>AWS EC2</b><p>A single virtual machine hosting the container; port 5000 is open in its security group.</p></div></div>
+      <div class="arrow">↓</div>
+      <div class="node"><span>🌐</span><div><b>Public internet</b><p>Reachable at <code>http://EC2_PUBLIC_IP:5000</code>.</p></div></div>
+    </div>
+
+    <h3 class="gap">Containerization with Docker</h3>
+    <div class="files"><span class="chip">Dockerfile</span><span class="chip">requirements.txt</span><span class="chip">Application</span></div>
+    <p>The application and its dependencies are packaged into a Docker container so that it can run consistently across development and cloud environments.</p>
+    <pre>docker build -t iris-ml-app .
+docker run -d --name iris-ml-app -p 5000:5000 iris-ml-app</pre>
+  </div>
+</section>
+
+<section id="api" class="sec alt">
+  <div class="wrap">
+    <h2>API Documentation</h2>
+    <div class="api-grid">
+      <article class="card"><h3><em>GET</em> /health</h3><p class="muted">Checks that the app is running and the model file is loaded.</p>
+        <pre class="out" id="out-health">{ "status": "healthy", "model_loaded": true }</pre>
+        <button class="btn sm" data-try="GET /health" data-out="out-health">Try API</button></article>
+      <article class="card"><h3><em>GET</em> /api/info</h3><p class="muted">Project and model details, including measured accuracy.</p>
+        <pre class="out" id="out-info">{ "project": "Iris ML Prediction System", "model": "Logistic Regression", ... }</pre>
+        <button class="btn sm" data-try="GET /api/info" data-out="out-info">Try API</button></article>
+      <article class="card wide"><h3><em class="post">POST</em> /predict</h3><p class="muted">Edit the request body, then send it to the live endpoint.</p>
+        <div class="two">
+          <div><b>Request</b><textarea id="reqBody" spellcheck="false">{
+  "sepal_length": 5.1,
+  "sepal_width": 3.5,
+  "petal_length": 1.4,
+  "petal_width": 0.2
+}</textarea></div>
+          <div><b>Response</b><pre class="out" id="out-predict">{
+  "success": true,
+  "prediction": "Iris Setosa",
+  "confidence": 0.98
+}</pre></div>
+        </div>
+        <button class="btn sm" data-try="POST /predict" data-out="out-predict">Try API</button></article>
+    </div>
+    <p class="muted">The panels above show an illustrative shape until you press <b>Try API</b>; then they show the real response.</p>
+  </div>
+</section>
+
+<section id="about" class="sec">
+  <div class="wrap">
+    <h2>About the Project</h2>
+    <div class="grid2">
+      <div class="card"><h3>Problem statement</h3><p>Machine learning models are often developed locally but need to be exposed through reliable APIs and deployed in cloud environments for real-world use.</p></div>
+      <div class="card"><h3>Solution</h3><p>Our system trains an Iris classification model, exposes it through a Flask REST API, packages the application using Docker, and deploys the container on AWS EC2.</p></div>
+    </div>
+    <div class="grid3 gap">
+      <div class="card"><h3>Objectives</h3><ol class="plain">
+        <li>Build a working Machine Learning classification model.</li><li>Create a REST API for ML predictions.</li><li>Create a user-friendly web interface.</li><li>Containerize the application using Docker.</li><li>Deploy the container on AWS EC2.</li><li>Demonstrate cloud-based ML model serving.</li><li>Provide API health monitoring.</li><li>Demonstrate scalable deployment concepts.</li></ol></div>
+      <div class="card"><h3>Advantages</h3><ul>
+        <li>Easy access through web browser.</li><li>Portable Docker deployment.</li><li>Separation between frontend and ML API.</li><li>Cloud accessibility.</li><li>Easy model integration.</li><li>Reproducible environment.</li><li>Simple API integration.</li><li>Easy future scaling.</li></ul></div>
+      <div class="card"><h3>Future scope</h3><ul>
+        <li>Deploy larger ML models.</li><li>Add authentication.</li><li>Add a database for prediction history.</li><li>Add AWS Load Balancer.</li><li>Add HTTPS.</li><li>Add CI/CD using GitHub Actions.</li><li>Deploy multiple containers.</li><li>Add model monitoring.</li><li>Add automatic model retraining.</li><li>Move serving to AWS SageMaker for production scale.</li></ul></div>
+    </div>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">Cloud ML Predictor · Flask · scikit-learn · Docker · AWS EC2</div></footer>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
